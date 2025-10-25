@@ -57,13 +57,59 @@ class MotivationalTwitterBot:
             logging.error("Error parsing quotes JSON file")
             return []
     
+    def load_used_quotes(self):
+        """Load the list of recently used quotes"""
+        try:
+            with open('data/used_quotes.json', 'r', encoding='utf-8') as file:
+                data = json.load(file)
+                return data.get('used_quotes', [])
+        except FileNotFoundError:
+            return []
+        except json.JSONDecodeError:
+            logging.warning("Error parsing used quotes file, starting fresh")
+            return []
+    
+    def save_used_quotes(self, used_quotes):
+        """Save the list of recently used quotes"""
+        try:
+            # Ensure data directory exists
+            os.makedirs('data', exist_ok=True)
+            
+            data = {'used_quotes': used_quotes}
+            with open('data/used_quotes.json', 'w', encoding='utf-8') as file:
+                json.dump(data, file, indent=2, ensure_ascii=False)
+        except Exception as e:
+            logging.error(f"Error saving used quotes: {e}")
+    
     def get_random_quote(self):
-        """Get a random motivational quote"""
+        """Get a random motivational quote without recent repeats"""
         quotes = self.load_quotes()
         if not quotes:
             return "Stay motivated and keep pushing forward! 💪 #Motivation #Success"
         
-        return random.choice(quotes)
+        used_quotes = self.load_used_quotes()
+        
+        # Find quotes that haven't been used recently
+        available_quotes = [quote for quote in quotes if quote not in used_quotes]
+        
+        # If we've used all quotes, reset the used list but keep last 10 to avoid immediate repeats
+        if not available_quotes:
+            logging.info("All quotes used, resetting with buffer to prevent immediate repeats")
+            used_quotes = used_quotes[-10:] if len(used_quotes) >= 10 else []
+            available_quotes = [quote for quote in quotes if quote not in used_quotes]
+        
+        # Select a random quote from available ones
+        selected_quote = random.choice(available_quotes)
+        
+        # Add to used quotes and keep only last 50 to manage memory
+        used_quotes.append(selected_quote)
+        used_quotes = used_quotes[-50:]  # Keep only last 50 used quotes
+        
+        # Save updated used quotes
+        self.save_used_quotes(used_quotes)
+        
+        logging.info(f"Selected quote (not used in last {len(used_quotes)} posts)")
+        return selected_quote
     
     def add_hashtags(self, quote):
         """Add relevant hashtags to the quote"""
@@ -120,7 +166,7 @@ class MotivationalTwitterBot:
         """Main function to post a daily motivational quote"""
         logging.info("Starting daily quote posting process")
         
-        # Get a random quote
+        # Get a random quote (with duplicate prevention)
         quote = self.get_random_quote()
         
         # Format the tweet
@@ -130,8 +176,10 @@ class MotivationalTwitterBot:
         success = self.post_tweet(formatted_tweet)
         
         if success:
-            logging.info("Daily motivational quote posted successfully!")
-            print(f"✅ Posted: {formatted_tweet}")
+            # Log the posted quote with timestamp for tracking
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            logging.info(f"Quote posted at {timestamp}: {quote[:100]}...")
+            print(f"✅ Posted at {timestamp}: {formatted_tweet}")
         else:
             logging.error("Failed to post daily quote")
             print("❌ Failed to post quote")
