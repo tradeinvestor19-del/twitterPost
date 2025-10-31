@@ -365,44 +365,26 @@ class MotivationalTwitterBot:
         
         return quote
     
-    def add_hashtags(self, quote):
-        """Add relevant hashtags to the quote"""
-        hashtags = [
-            "#Motivation", "#Inspiration", "#Success", "#Mindset", 
-            "#Goals", "#Positivity", "#GrowthMindset", "#DailyMotivation",
-            "#Quotes", "#Wisdom", "#Achievement", "#Believe"
-        ]
-        
-        # Select 2-3 random hashtags to avoid overwhelming the tweet
-        selected_hashtags = random.sample(hashtags, random.randint(2, 3))
-        
-        # Check if quote already has hashtags
-        if not any(tag in quote for tag in hashtags):
-            quote += " " + " ".join(selected_hashtags)
-        
-        return quote
-    
     def format_tweet(self, quote):
-        """Format the quote for Twitter with proper length and hashtags"""
+        """Format the quote for Twitter with proper length"""
         # Add engagement hook first
         quote_with_engagement = self.add_engagement_hook(quote)
         
-        # Add hashtags
-        formatted_quote = self.add_hashtags(quote_with_engagement)
-        
         # Ensure tweet is within Twitter's character limit (280 characters)
-        if len(formatted_quote) > 280:
-            # If too long, try with just the original quote and minimal hashtag
+        if len(quote_with_engagement) > 280:
+            # If too long, trim the quote
             base_quote = quote
-            if len(base_quote) > 250:  # Leave room for hashtag
-                base_quote = base_quote[:247] + "..."
+            if len(base_quote) > 277:
+                base_quote = base_quote[:277] + "..."
             
             # Try to fit engagement hook if possible
             engagement_quote = self.add_engagement_hook(base_quote)
-            if len(engagement_quote + " #Motivation") <= 280:
-                formatted_quote = engagement_quote + " #Motivation"
+            if len(engagement_quote) <= 280:
+                formatted_quote = engagement_quote
             else:
-                formatted_quote = base_quote + " #Motivation"
+                formatted_quote = base_quote
+        else:
+            formatted_quote = quote_with_engagement
         
         return formatted_quote
     
@@ -458,8 +440,6 @@ class MotivationalTwitterBot:
         logging.info("Force posting a motivational poll")
         
         poll_data = self.create_motivational_poll()
-        poll_question_with_hashtags = poll_data["question"] + " #Motivation #Poll #EngageWithUs"
-        poll_data["question"] = poll_question_with_hashtags
         
         success = self.post_poll(poll_data)
         
@@ -481,10 +461,6 @@ class MotivationalTwitterBot:
         if self.should_post_poll():
             # Post a motivational poll
             poll_data = self.create_motivational_poll()
-            
-            # Add hashtags to poll question
-            poll_question_with_hashtags = poll_data["question"] + " #Motivation #Poll #EngageWithUs"
-            poll_data["question"] = poll_question_with_hashtags
             
             success = self.post_poll(poll_data)
             
