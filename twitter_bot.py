@@ -3,6 +3,7 @@ import json
 import random
 import os
 import logging
+import time
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -388,48 +389,76 @@ class MotivationalTwitterBot:
         
         return formatted_quote
     
-    def post_tweet(self, message):
-        """Post a tweet to Twitter"""
-        try:
-            response = self.client.create_tweet(text=message)
-            logging.info(f"Tweet posted successfully: {message[:50]}...")
-            return True
-        except tweepy.Forbidden as e:
-            logging.error(f"Forbidden error: {e}")
-            return False
-        except tweepy.TooManyRequests as e:
-            logging.error(f"Rate limit exceeded: {e}")
-            return False
-        except tweepy.Unauthorized as e:
-            logging.error(f"Unauthorized error: {e}")
-            return False
-        except Exception as e:
-            logging.error(f"Error posting tweet: {e}")
-            return False
+    def post_tweet(self, message, max_retries=3):
+        """Post a tweet to Twitter with retry logic"""
+        for attempt in range(max_retries):
+            try:
+                response = self.client.create_tweet(text=message)
+                logging.info(f"Tweet posted successfully: {message[:50]}...")
+                return True
+            except tweepy.TooManyRequests as e:
+                if attempt < max_retries - 1:
+                    wait_time = (attempt + 1) * 60  # Exponential backoff: 1min, 2min, 3min
+                    logging.warning(f"Rate limit exceeded, retrying in {wait_time} seconds... ({attempt + 1}/{max_retries})")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    logging.error(f"Rate limit exceeded after {max_retries} attempts: {e}")
+                    return False
+            except tweepy.Forbidden as e:
+                logging.error(f"Forbidden error: {e}")
+                return False
+            except tweepy.Unauthorized as e:
+                logging.error(f"Unauthorized error: {e}")
+                return False
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    wait_time = (attempt + 1) * 30  # 30s, 1min, 1.5min
+                    logging.warning(f"Error posting tweet, retrying in {wait_time} seconds... ({attempt + 1}/{max_retries}): {e}")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    logging.error(f"Error posting tweet after {max_retries} attempts: {e}")
+                    return False
+        return False
 
-    def post_poll(self, poll_data):
-        """Post a poll to Twitter"""
-        try:
-            # Twitter API v2 poll creation
-            response = self.client.create_tweet(
-                text=poll_data["question"],
-                poll_options=poll_data["options"],
-                poll_duration_minutes=1440  # 24 hours
-            )
-            logging.info(f"Poll posted successfully: {poll_data['question'][:50]}...")
-            return True
-        except tweepy.Forbidden as e:
-            logging.error(f"Forbidden error posting poll: {e}")
-            return False
-        except tweepy.TooManyRequests as e:
-            logging.error(f"Rate limit exceeded for poll: {e}")
-            return False
-        except tweepy.Unauthorized as e:
-            logging.error(f"Unauthorized error for poll: {e}")
-            return False
-        except Exception as e:
-            logging.error(f"Error posting poll: {e}")
-            return False
+    def post_poll(self, poll_data, max_retries=3):
+        """Post a poll to Twitter with retry logic"""
+        for attempt in range(max_retries):
+            try:
+                # Twitter API v2 poll creation
+                response = self.client.create_tweet(
+                    text=poll_data["question"],
+                    poll_options=poll_data["options"],
+                    poll_duration_minutes=1440  # 24 hours
+                )
+                logging.info(f"Poll posted successfully: {poll_data['question'][:50]}...")
+                return True
+            except tweepy.TooManyRequests as e:
+                if attempt < max_retries - 1:
+                    wait_time = (attempt + 1) * 60  # Exponential backoff: 1min, 2min, 3min
+                    logging.warning(f"Rate limit exceeded for poll, retrying in {wait_time} seconds... ({attempt + 1}/{max_retries})")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    logging.error(f"Rate limit exceeded for poll after {max_retries} attempts: {e}")
+                    return False
+            except tweepy.Forbidden as e:
+                logging.error(f"Forbidden error posting poll: {e}")
+                return False
+            except tweepy.Unauthorized as e:
+                logging.error(f"Unauthorized error for poll: {e}")
+                return False
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    wait_time = (attempt + 1) * 30  # 30s, 1min, 1.5min
+                    logging.warning(f"Error posting poll, retrying in {wait_time} seconds... ({attempt + 1}/{max_retries}): {e}")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    logging.error(f"Error posting poll after {max_retries} attempts: {e}")
+                    return False
+        return False
 
     def should_post_poll(self):
         """Decide whether to post a poll or regular quote (20% chance for poll)"""
