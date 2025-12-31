@@ -499,13 +499,19 @@ def main():
     """Main function to run the bot"""
     try:
         bot = MotivationalTwitterBot()
-        bot.post_daily_content()
+        success = bot.post_daily_content()
+        if not success:
+            logging.error("Failed to post content")
+            print("❌ Failed to post content")
+            exit(1)  # Exit with error code
     except ValueError as e:
         logging.error(f"Configuration error: {e}")
         print(f"❌ Configuration error: {e}")
+        exit(1)
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
         print(f"❌ Unexpected error: {e}")
+        exit(1)
 
 if __name__ == "__main__":
     main()
