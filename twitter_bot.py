@@ -118,7 +118,7 @@ class MotivationalTwitterBot:
             },
             {
                 "question": "Best time for your most important work? 🕐",
-                "options": ["Early morning", "Late night", "Afternoon", "Whenever inspired"]
+                "options": ["Early morning", "Late night", "Afternoon", "When inspired"]
             },
             {
                 "question": "What's your success fuel? 💪",
@@ -130,7 +130,7 @@ class MotivationalTwitterBot:
             },
             {
                 "question": "Your ideal morning routine includes? 🌅",
-                "options": ["Exercise", "Meditation", "Reading", "Planning the day"]
+                "options": ["Exercise", "Meditation", "Reading", "Planning day"]
             },
             {
                 "question": "What drives your ambition most? 🎯",
@@ -160,11 +160,11 @@ class MotivationalTwitterBot:
             # NEW EXPANDED POLLS
             {
                 "question": "Which mindset shift changed your life most? 🧠",
-                "options": ["Growth over fixed", "Abundance over scarcity", "Progress over perfection", "Action over intention"]
+                "options": ["Growth over fixed", "Abundance over scarcity", "Progress not perfection", "Action over intention"]
             },
             {
                 "question": "Your biggest fear when starting something new? 😰",
-                "options": ["Fear of failure", "Fear of judgment", "Fear of success", "Fear of the unknown"]
+                "options": ["Fear of failure", "Fear of judgment", "Fear of success", "Fear of unknown"]
             },
             {
                 "question": "What stops most people from achieving their dreams? 🚧",
@@ -208,7 +208,7 @@ class MotivationalTwitterBot:
             },
             {
                 "question": "Your biggest confidence booster? 💫",
-                "options": ["Past achievements", "Positive self-talk", "Others' encouragement", "New challenges conquered"]
+                "options": ["Past achievements", "Positive self-talk", "Others' encouragement", "Conquering challenges"]
             },
             {
                 "question": "How do you recharge your energy? 🔋",
@@ -232,7 +232,7 @@ class MotivationalTwitterBot:
             },
             {
                 "question": "Your biggest life lesson so far? 📖",
-                "options": ["Patience pays off", "Authenticity matters", "Health is wealth", "Relationships > achievements"]
+                "options": ["Patience pays off", "Authenticity matters", "Health is wealth", "Relationships > goals"]
             },
             {
                 "question": "How do you handle criticism? 🛡️",
@@ -240,7 +240,7 @@ class MotivationalTwitterBot:
             },
             {
                 "question": "Your ideal team dynamic? 👥",
-                "options": ["Collaborative brainstorming", "Clear role division", "Friendly competition", "Supportive mentorship"]
+                "options": ["Collaborative work", "Clear role division", "Friendly competition", "Supportive mentorship"]
             },
             {
                 "question": "What's your creative outlet? 🎨",
@@ -248,7 +248,7 @@ class MotivationalTwitterBot:
             },
             {
                 "question": "Your approach to networking? 🤝",
-                "options": ["Help first, ask later", "Mutual value exchange", "Authentic connections only", "Strategic relationship building"]
+                "options": ["Help first, ask later", "Mutual value exchange", "Authentic only", "Strategic building"]
             },
             {
                 "question": "What drives your daily habits? 🔄",
@@ -272,7 +272,7 @@ class MotivationalTwitterBot:
             },
             {
                 "question": "Your ideal life balance? ⚖️",
-                "options": ["Work-life separation", "Integrated lifestyle", "Seasonal focus shifts", "Present moment awareness"]
+                "options": ["Work-life separation", "Integrated lifestyle", "Seasonal focus shifts", "Present awareness"]
             },
             {
                 "question": "How do you stay motivated long-term? 🏃",
