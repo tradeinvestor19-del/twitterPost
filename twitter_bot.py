@@ -44,6 +44,28 @@ class MotivationalTwitterBot:
         )
         
         logging.info("Twitter bot initialized successfully")
+        
+        # Check API access and permissions
+        self.verify_credentials()
+    
+    def verify_credentials(self):
+        """Verify API credentials and check permissions"""
+        try:
+            # Try to get authenticated user info
+            me = self.client.get_me()
+            if me.data:
+                logging.info(f"Authenticated as: @{me.data.username}")
+                logging.info(f"User ID: {me.data.id}")
+            else:
+                logging.warning("Could not retrieve user information")
+        except tweepy.Forbidden as e:
+            logging.error(f"Forbidden when verifying credentials: {e}")
+            logging.error(f"This likely means your app lacks necessary permissions (Read+Write)")
+            logging.error(f"Error response: {e.response.text if hasattr(e, 'response') else 'No details'}")
+        except tweepy.Unauthorized as e:
+            logging.error(f"Unauthorized: Invalid credentials - {e}")
+        except Exception as e:
+            logging.warning(f"Could not verify credentials: {e}")
     
     def load_quotes(self):
         """Load quotes from JSON file"""
@@ -407,9 +429,12 @@ class MotivationalTwitterBot:
                     return False
             except tweepy.Forbidden as e:
                 logging.error(f"Forbidden error: {e}")
+                logging.error(f"Error details: {e.response.text if hasattr(e, 'response') else 'No response details'}")
+                logging.error(f"Status code: {e.response.status_code if hasattr(e, 'response') else 'Unknown'}")
                 return False
             except tweepy.Unauthorized as e:
                 logging.error(f"Unauthorized error: {e}")
+                logging.error(f"Error details: {e.response.text if hasattr(e, 'response') else 'No response details'}")
                 return False
             except Exception as e:
                 if attempt < max_retries - 1:
@@ -445,9 +470,11 @@ class MotivationalTwitterBot:
                     return False
             except tweepy.Forbidden as e:
                 logging.error(f"Forbidden error posting poll: {e}")
+                logging.error(f"Error details: {e.response.text if hasattr(e, 'response') else 'No response details'}")
                 return False
             except tweepy.Unauthorized as e:
                 logging.error(f"Unauthorized error for poll: {e}")
+                logging.error(f"Error details: {e.response.text if hasattr(e, 'response') else 'No response details'}")
                 return False
             except Exception as e:
                 if attempt < max_retries - 1:
